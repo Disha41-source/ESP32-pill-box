@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>ESP32 Relay Control Dashboard</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<style>
+	  body {
+	  font-family: Arial, sans-serif:
+	  text-align: crnter;
+	  background-color: #f9f9f9;
+	  margin: 0;
+	  padding; 0 10px 40px;
+	  display: flex;
+	  flex-direction: column;
+	  min-height: 100vh;
+	  justify-content: space-between;
+	}
+	h1 {
+	  margin-top: 30px;
+	  font-size: 1.8rem;
+	}
+	.relay-card {
+	  display: inline-block;
+	  background-color: white;
+	  padding: 20px;
+	  margin: 15px;
+	  border-radius: 15px;
+	  box-shadow: 0 4px rgba(0,0,0,0.1);
+	  width:220px;
+	  vertical-align: top;
+	}
+	.relay-card h2{
+	margin-top: 0;
+	}
+	.relay-card button{
+	max-width: 300px;
+	width: 90%;
+	padding: 12px 25px;
+	font-size: 16px;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	margin: 15px auto;
+	display: block;
+	colour: white;
+	background-color: #1e88e5;
+	transition: opacity 0.3s ease;
+	}
+	.relay-card button:hover {
+	opacity: 0.8;
+	}
+	#allOffBtn {
+	background-color: #d32f2f;
+	}
+	
+	#allOffBtn:hover {
+	opacity:0.8;
+	}
+	#logoutBtn {
+	background-color: #555;
+	}
+	#logoutbtn:hover {
+	opacity: 0.8;
+	}
+	
+	/* Responsive layout */
+	
+	#dashboard {
+	display: none;
+	}
+	
+	#loginForm {
+	max-width: 400px;
+	margin: 80px auto 20px;
+	padding: 30px 20px;
+	border-radius: 15px;
+	box-shadow:
+	0 4px 12px rgba(0,0,0,0.15);
+	}
+	#loginForm input {
+	width: 100%;
+	padding: 12px 15px;
+	margin:10px 0 20px;
+	font-size: 1rem;
+	boeder: 1.5px solid #ccc;
+	border-radius: 10px;
+	box-sizing: border-box;
+	outline-offset: 2px;
+	
+	transition:
+	border-color 0.3s ease;
+	} 
+	#loginForm input:focus {
+	border-color: #1e88e5;
+	}
+	#loginForm button {
+	width: 100%;
+	background-color: #1e88e5;
+	color; white;
+	padding: 12px;
+	font-size: 18px;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	
+	transition:
+	background-color 0.3s ease;
+	}
+	#loginForm button:hover {
+	background-color: #1565c0;
+	}
+	
+	#dashboard .relay-container {
+	max-width: 960px;
+	margin: 20px auto 0;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	}
+	
+	/* Smaller devices*/
+	@media (max-width: 700px) {
+	.ralay-card {
+	width: 90%;
+	margin: 10px auto;
+	display: block;
+	}
+	
+	body {
+	padding: 0 10px 60px;
+	}
+  }
+  
+  footer {
+  font-size: 0.9rem;
+  color: #666;
+  padding: 10px 0;
+  }
+  
+  .error {
+  color: #d32f2f;
+  min-height: 20px;
+  }
+  
+  .status-on {
+  color: #2r7d32;
+  font-weight: bold;
+  }
+  
+  .status-off {
+  color: #d32f2f;
+  font-weight: bold;
+  }
+  
+  </style>
+  
+  </head>
+  
+  <body>
+  
+  <!-- LOGIN FORM -->
+  
+  <div id="loginForm">
+  
+  <h1>
+  ESP32 Relay Control
+  </h1>
+  
+  <input
+  type="email"
+  id="email"
+  placeholder="Email"
+  autocomplete="username"
+  />
+  
+  <input
+  type="password"
+  id="password"
+  placeholder="Password"
+  autocomplete="current-password"
+  />
+  
+  <button id="loginBtn">
+  Login
+  </button>
+  
+  <p
+  id="loginMessage"
+  class="error".
+  </p>
+  
+  </div>
+  
+  <!-- DASHBOARD -->
+  
+  <div id="dashboard">
+  
+  <h1>
+  ESP32 Relay Control Dashboard
+  </h1>
+  
+  <div class="relay-container">
+  
+  <!-- RELAY 1 -->
+  
+  <div class="relay-card">
+  
+  <h2>
+  Relay 1
+  </h2>
+  
+  <p>
+  Status:
+  <span id="status1">
+  Loading...
+  </span>
+  </p>
+  
+  <button id="btn1".
+  Toggle
+  </button>
+  
+  </div>
+  
+  <!-- RELAY 2-->
+  
+  <div class="relay-card">
+  
+  <h2>
+  Relay 2
+  </h2>
+  
+  <p>
+  Status:
+  <span id="status2">
+  Loading...
+  </span>
+  </p>
+  
+  <button id="btn2">
+  Toggle</button>
+  
+  </div>
+  
+  <!-- RELAY 3 -->
+  
+  <div class="relay-card">
+    <h2>
+          Relay 3
+        </h2>
+
+        <p>
+          Status:
+          <span id="status3">
+            Loading...
+          </span>
+        </p>
+
+        <button id="btn3">
+          Toggle
+        </button>
+
+      </div>
+
+
+
+      <!-- RELAY 4 -->
+
+      <div class="relay-card">
+
+        <h2>
+          Relay 4
+        </h2>
+
+        <p>
+          Status:
+          <span id="status4">
+            Loading...
+          </span>
+        </p>
+
+        <button id="btn4">
+          Toggle
+        </button>
+
+      </div>
+
+
+
+      <!-- ALL OFF -->
+
+      <button id="allOffBtn">
+        All OFF
+      </button>
+
+
+      <!-- LOGOUT -->
+
+      <button id="logoutBtn">
+        Logout
+      </button>
+
+
+    </div>
+
+  </div>
+
+
+
+  <!-- FOOTER -->
+
+  <footer>
+
+    Created by Tech StudyCell
+
+  </footer>
+
+
+
+  <!-- FIREBASE SDK -->
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js">
+  </script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js">
+  </script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js">
+  </script>
+
+
+
+  <script>
+
+
+    // ============================================
+    // FIREBASE CONFIGURATION
+    // ============================================
+
+    const firebaseConfig = {
+
+      apiKey:
+        "AIzaSyCSE8RW9KE7N79Yns81_jRdwCKWxNpU_QE",
+
+      authDomain:
+        "pill-box-reminder-822af.firebaseapp.com",
+
+      databaseURL:
+        "https://pill-box-reminder-822af-default-rtdb.firebaseio.com",
+
+      projectId:
+        "pill-box-reminder-822af",
+
+      storageBucket:
+        "pill-box-reminder-822af.firebasestorage.app",
+
+      messagingSenderId:
+        "898766904063",
+
+      appId:
+        "1:898766904063:web:7f9f4544d195afba4e0aca"
+
+    };
+
+
+
+    // ============================================
+    // INITIALIZE FIREBASE
+    // ============================================
+
+    firebase.initializeApp(
+      firebaseConfig
+    );
+
+
+    const db =
+      firebase.database();
+
+
+    const auth =
+      firebase.auth();
+
+
+
+    // ============================================
+    // GET HTML ELEMENTS
+    // ============================================
+
+    const loginForm =
+      document.getElementById(
+        "loginForm"
+      );
+
+
+    const dashboard =
+      document.getElementById(
+        "dashboard"
+      );
+
+
+    const loginBtn =
+      document.getElementById(
+        "loginBtn"
+      );
+
+
+    const logoutBtn =
+      document.getElementById(
+        "logoutBtn"
+      );
+
+
+    const allOffBtn =
+      document.getElementById(
+        "allOffBtn"
+      );
+
+
+    const loginMessage =
+      document.getElementById(
+        "loginMessage"
+      );
+
+
+
+    // ============================================
+    // STATUS ELEMENTS
+    // ============================================
+
+    const relayStatus = [
+
+      document.getElementById(
+        "status1"
+      ),
+
+      document.getElementById(
+        "status2"
+      ),
+
+      document.getElementById(
+        "status3"
+      ),
+
+      document.getElementById(
+        "status4"
+      )
+
+    ];
+
+
+
+    // ============================================
+    // RELAY BUTTONS
+    // ============================================
+
+    const relayButtons = [
+
+      document.getElementById(
+        "btn1"
+      ),
+
+      document.getElementById(
+        "btn2"
+      ),
+
+      document.getElementById(
+        "btn3"
+      ),
+
+      document.getElementById(
+        "btn4"
+      )
+
+    ];
+
+
+
+    // ============================================
+    // LOGIN
+    // ============================================
+
+    loginBtn.addEventListener(
+      "click",
+      async () => {
+
+        const email =
+          document
+            .getElementById("hdodiya012@gmail.com")
+            .value
+            .trim();
+
+
+        const password =
+          document
+            .getElementById("@Hastidodiya8127")
+            .value;
+
+
+        if (!email || !password) {
+
+          loginMessage.textContent =
+            "Please enter email and password.";
+
+          return;
+        }
+
+
+        loginMessage.textContent =
+          "Logging in...";
+
+
+        try {
+
+          await auth.signInWithEmailAndPassword(
+            email,
+            password
+          );
+
+          loginMessage.textContent =
+            "";
+
+        }
+
+        catch (error) {
+
+          console.error(error);
+
+          loginMessage.textContent =
+            "Login failed: " +
+            error.message;
+
+        }
+
+      }
+    );
+
+
+
+    // ============================================
+    // AUTHENTICATION STATE
+    // ============================================
+
+    auth.onAuthStateChanged(
+      (user) => {
+
+        if (user) {
+
+          loginForm.style.display =
+            "none";
+
+          dashboard.style.display =
+            "block";
+
+          startRelayListeners();
+
+        }
+
+        else {
+
+          loginForm.style.display =
+            "block";
+
+          dashboard.style.display =
+            "none";
+
+        }
+
+      }
+    );
+
+
+
+    // ============================================
+    // LOGOUT
+    // ============================================
+
+    logoutBtn.addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          await auth.signOut();
+
+        }
+
+        catch (error) {
+
+          console.error(error);
+
+        }
+
+      }
+    );
+
+
+
+    // ============================================
+    // UPDATE RELAY STATUS
+    // ============================================
+
+    function updateStatus(
+      index,
+      value
+    ) {
+
+      if (value === true) {
+
+        relayStatus[index]
+		  .textContent = "ON";
+
+        relayStatus[index]
+          .className =
+          "status-on";
+
+      }
+
+      else {
+
+        relayStatus[index]
+          .textContent = "OFF";
+
+        relayStatus[index]
+          .className =
+          "status-off";
+
+      }
+
+    }
+
+
+
+    // ============================================
+    // FIREBASE REAL-TIME LISTENERS
+    // ============================================
+
+    function startRelayListeners() {
+
+      for (
+        let i = 1;
+        i <= 4;
+        i++
+      ) {
+
+        const relayRef =
+          db.ref(
+            "/relay" + i
+          );
+
+
+        relayRef.on(
+          "value",
+          (snapshot) => {
+
+            const value =
+              snapshot.val() === true;
+
+
+            updateStatus(
+              i - 1,
+              value
+            );
+
+          },
+
+          (error) => {
+
+            console.error(
+              "Firebase read error:",
+              error
+            );
+
+
+            relayStatus[i - 1]
+              .textContent =
+              "Error";
+
+          }
+        );
+
+      }
+
+    }
+
+
+
+    // ============================================
+    // TOGGLE RELAY
+    // ============================================
+
+    async function toggleRelay(
+      relayNumber
+    ) {
+
+      const relayRef =
+        db.ref(
+          "/relay" +
+          relayNumber
+        );
+
+
+      try {
+
+        const snapshot =
+          await relayRef.once(
+            "value"
+          );
+
+
+        const currentValue =
+          snapshot.val() === true;
+
+
+        await relayRef.set(
+          !currentValue
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Relay update error:",
+          error
+        );
+
+
+        alert(
+          "Unable to update Relay " +
+          relayNumber
+        );
+
+      }
+
+    }
+
+
+
+    // ============================================
+    // RELAY BUTTONS
+    // ============================================
+
+    relayButtons[0]
+      .addEventListener(
+        "click",
+        () => toggleRelay(1)
+      );
+
+
+    relayButtons[1]
+      .addEventListener(
+        "click",
+        () => toggleRelay(2)
+      );
+
+
+    relayButtons[2]
+      .addEventListener(
+        "click",
+        () => toggleRelay(3)
+      );
+
+
+    relayButtons[3]
+      .addEventListener(
+        "click",
+        () => toggleRelay(4)
+      );
+
+
+
+    // ============================================
+    // ALL RELAYS OFF
+    // ============================================
+
+    allOffBtn.addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          await db
+            .ref("/relay1")
+            .set(false);
+
+
+          await db
+            .ref("/relay2")
+            .set(false);
+
+
+          await db
+            .ref("/relay3")
+            .set(false);
+
+
+          await db
+            .ref("/relay4")
+            .set(false);
+
+        }
+
+        catch (error) {
+
+          console.error(
+            "All OFF error:",
+            error
+          );
+
+
+          alert(
+            "Unable to turn all relays OFF."
+          );
+
+        }
+
+      }
+    );
+
+
+  </script>
+
+
+</body>
+</html>
